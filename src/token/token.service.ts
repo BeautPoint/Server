@@ -41,20 +41,13 @@ export class TokenService {
     const selectedToken = await this.getRefreshToken(account_id);
     const refreshTokenData = { ...account_id, token: signedToken };
 
-    if (!selectedToken.token) {
+    if (!selectedToken) {
       await this.refreshTokenRepository.insertQuery(refreshTokenData);
       return signedToken;
     }
 
-    if (!selectedToken.expiryDate) {
-      const result = await this.refreshTokenRepository.updateQuery(
-        refreshTokenData,
-      );
-      console.log('updatedRefesh : ', result);
-      return signedToken;
-    }
-
-    return selectedToken.token;
+    await this.refreshTokenRepository.updateQuery(refreshTokenData);
+    return signedToken;
   }
 
   async decodeToken(token: string) {
@@ -89,18 +82,18 @@ export class TokenService {
 
   async getRefreshToken(data) {
     const selectToken = await this.refreshTokenRepository.selectQuery(data);
-    if (!selectToken) {
-      return;
-    }
+    // if (!selectToken) {
+    //   return;
+    // }
 
-    console.log('getrefresh :', selectToken);
-    const { token, account_id } = selectToken;
-    const validatedToken = await this.checkTokenExpiryDate(token);
+    // console.log('getrefresh :', selectToken);
+    // const { token, account_id } = selectToken;
+    // const validatedToken = await this.checkTokenExpiryDate(token);
 
-    console.log('getRefreshCheckeDate : ', validatedToken);
-    const result = { token, account_id, expiryDate: validatedToken };
+    // console.log('getRefreshCheckeDate : ', validatedToken);
+    // const result = { token, account_id, expiryDate: validatedToken };
 
-    return result;
+    return selectToken;
   }
 
   async checkTokenExpiryDate(refreshToken) {
